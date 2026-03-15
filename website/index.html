@@ -26,95 +26,39 @@
   <main>
 
     <!-- Shop  -->
-    <div id="view-shop">
+    <div class="view active" id="view-shop">
 
-      <h1>Sealed Products</h1>
-
-      <!-- Search + filter -->
-      <input type="text" placeholder="Search products…" />
-      <div>
-        <button>All</button>
-        <button>Booster Box</button>
-        <button>Booster Bundle</button>
-        <button>Elite Trainer Box</button>
+      <div class="page-header">
+        <h1>Products</h1>
       </div>
 
-      <!-- Product grid -->
-      <div id="productsGrid">
-
-        <!-- Single product card (repeated for each product) -->
-        <div class="product-card">
-          <div class="product-img">
-            <img src="images/product.jpg" alt="Product" />
-          </div>
-          <div class="product-body">
-            <p>Mega Evolution</p>
-            <h3>Mega Evolution Booster Box</h3>
-            <p>Booster Box (36 Packs)</p>
-            <div>
-              <span>$339.99</span>
-              <button>Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search products…" oninput="renderProducts()" />
+        <div class="filter-chips" id="filterChips"></div>
       </div>
+
+      <div class="products-grid" id="productsGrid"></div>
     </div>
 
     <!-- Cart View -->
-    <div id="view-cart">
-
-      <h1>Your Cart</h1>
-      <button>← Continue Shopping</button>
-
-      <!-- Cart items -->
-      <div id="cartItems">
-
-        <!-- Single cart row (repeated for each item) -->
-        <div class="cart-item">
-          <img src="images/product.jpg" alt="Product" />
-          <div>
-            <p>Mega Evolution Elite Trainer Box</p>
-            <p>$119.99 each</p>
-          </div>
-          <div>
-            <button>−</button>
-            <span>1</span>
-            <button>+</button>
-          </div>
-          <span>$39.99</span>
-          <button>✕</button>
-        </div>
-
+    <div class="view" id="view-cart">
+      <div class="page-header">
+        <h1>Your Cart <span class="muted" id="cartItemCount"></span></h1>
+        <button class="btn-secondary" onclick="switchView('shop')">← Continue Shopping</button>
       </div>
-
-      <!-- Order summary -->
-      <div id="orderSummary">
-        <h2>Order Summary</h2>
-        <div>
-          <span>Subtotal</span><span>$119.99</span>
-        </div>
-        <div>
-          <span>Shipping</span><span>$9.99</span>
-        </div>
-        <div>
-          <span>Tax</span><span>$8.00</span>
-        </div>
-        <div>
-          <span>Total</span><span>$137.98</span>
-        </div>
-        <input type="text" placeholder="Promo code" />
-        <button>Apply</button>
-        <button>Checkout</button>
+      <div class="cart-layout">
+        <div id="cartItems"></div>
+        <div id="orderSummary"></div>
       </div>
-
     </div>
 
-    <!-- Purchase Success View -->
-    <div id="view-success">
-      <h2>Order Placed!</h2>
-      <p>Thanks for your purchase. Your products are on their way!</p>
-      <button>Back to Shop</button>
+    <div class="view" id="view-success">
+      <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h2>Order Placed!</h2>
+        <p>Thanks for your purchase. Your products are on their way!</p>
+        <button class="btn-primary" onclick="clearCartAndReturn()">Back to Shop</button>
+      </div>
     </div>
 
   </main>

@@ -27,7 +27,37 @@ const PRODUCTS = [
     price: 119.99,
     emoji: '⭐'
   },
+    {
+    id: 4,
+    name: 'Phantasmal Flames Booster Box',
+    category: 'Phantasmal Flames',
+    type: 'Booster Box (36 Packs)',
+    image: 'images/phantasmal-flames-booster-box.png',
+    price: 339.99,
+    emoji: '📦'
+  },
+  {
+    id: 5,
+    name: 'Phantasmal Flames Booster Bundle',
+    category: 'Phantasmal Flames',
+    type: 'Booster Bundle (6 Packs)',
+    image: 'images/phantasmal-flames-booster-bundle.jpg',
+    price: 69.99,
+    emoji: '🎁'
+  },
+  {
+    id: 6,
+    name: 'Phantasmal Flames Elite Trainer Box',
+    category: 'Phantasmal Flames',
+    type: 'Elite Trainer Box',
+    image: 'images/phantasmal-flames-etb.jpg',
+    price: 119.99,
+    emoji: '⭐'
+  },
 ];
+
+// State
+let activeCategory = 'All';
 
 // Cart
 const DB = {
@@ -68,18 +98,59 @@ const DB = {
 
 // Render
 function renderProducts() {
-  const grid = document.getElementById('productsGrid');
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const grid  = document.getElementById('productsGrid');
 
-  grid.innerHTML = PRODUCTS.map(p => `
+  // Build category chips
+  const categories = ['All', ...new Set(PRODUCTS.map(p => p.category))];
+  document.getElementById('filterChips').innerHTML = categories
+    .map(c => `<button class="chip ${activeCategory === c ? 'active' : ''}" onclick="filterCategory('${c}')">${c}</button>`)
+    .join('');
+
+  // Filter
+  let filtered = PRODUCTS;
+  if (activeCategory !== 'All') {
+    filtered = filtered.filter(p => p.category === activeCategory);
+  }
+  if (query) {
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query) ||
+      p.type.toLowerCase().includes(query)
+    );
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <p>No products found.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => `
     <div class="product-card">
-      <h3 class="product-name">${p.name}</h3>
       <div class="product-img">
-        <img src="${p.image}" alt="${p.name}" />
+        <img
+          src="${p.image}"
+          alt="${p.name}"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        />
+        <div class="no-image" style="display:none;">
+          <span>${p.emoji}</span>
+          <span>No image</span>
+        </div>
       </div>
-      <p class="product-category">${p.category}</p>
-      <p class="product-type">${p.type}</p>
-      <p class="product-price">$${p.price}</p>
-      <button class="add-to-cart-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+      <div class="product-body">
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-type">${p.type}</div>
+        <div class="product-footer">
+          <span class="product-price">$${p.price.toFixed(2)}</span>
+          <button class="add-to-cart-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+        </div>
+      </div>
     </div>
   `).join('');
 }
@@ -108,6 +179,11 @@ function renderCart() {
   }).join('');
 }
 
+function filterCategory(cat) {
+  activeCategory = cat;
+  renderProducts();
+}
+
 // Interactions
 
 function addToCart(productId) {
@@ -134,4 +210,3 @@ function switchView(name) {
 // Initialise
 
 renderProducts();
-renderCart();
