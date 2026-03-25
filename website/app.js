@@ -93,6 +93,10 @@ const DB = {
       cart.find(c => c.productId === productId).qty = qty;
     }
     this.saveCart(cart);
+  },
+
+  clearCart() {
+    this.saveCart([]);
   }
 };
 
@@ -155,58 +159,151 @@ function renderProducts() {
   `).join('');
 }
 
-function renderCart() {
-  const cart = DB.getCart();
-  const cartEl = document.getElementById('cartItems');
-
-  if (cart.length === 0) {
-    cartEl.innerHTML = '<p>Your cart is empty.</p>';
-    return;
-  }
-
-  cartEl.innerHTML = cart.map(c => {
-    const product = PRODUCTS.find(p => p.id === c.productId);
-    return `
-      <div>
-        <p>${product.name}</p>
-        <button onclick="changeQty(${c.productId}, ${c.qty - 1})">−</button>
-        <span>${c.qty}</span>
-        <button onclick="changeQty(${c.productId}, ${c.qty + 1})">+</button>
-        <span>$${(product.price * c.qty).toFixed(2)}</span>
-        <button onclick="removeFromCart(${c.productId})">Remove</button>
-      </div>
-    `;
-  }).join('');
-}
-
 function filterCategory(cat) {
   activeCategory = cat;
   renderProducts();
 }
 
-// Interactions
+// Navigation
 
-function addToCart(productId) {
-  DB.addToCart(productId);
-  renderCart();
-  console.log('Cart:', DB.getCart()); // check its working
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelector('.cart-nav-btn').classList.toggle('active', name === 'cart');
+
+  if (name === 'cart') renderCart();
+  if (name === 'shop') renderProducts();
 }
 
-function removeFromCart(productId) {
-  DB.removeFromCart(productId);
-  renderCart();
+// Cart (Create, Read, Update, Delete)
+function addToCart(productId) {
+  DB.addToCart(productId);
+  updateCartBadge();
+  const product = PRODUCTS.find(p => p.id === productId);
+  toast(`${product.name} added to cart!`, 'success');
+}
+
+function renderCart() {
+  const cart      = DB.getCart();
+  const cartEl    = document.getElementById('cartItems');
+  const summaryEl = document.getElementById('orderSummary');
+  const countEl   = document.getElementById('cartItemCount');
+
+  const totalQty = cart.reduce((sum, c) => sum + c.qty, 0);
+  countEl.textContent = totalQty > 0 ? `(${totalQty} item${totalQty !== 1 ? 's' : ''})` : '';
+
+  if (cart.length === 0) {
+    cartEl.innerHTML = `
+      <div class="cart-empty">
+        <div class="big-emoji">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p>Add some products to get started.</p>
+      </div>`;
+    summaryEl.innerHTML = '';
+    return;
+  }
+
+  const enriched = cart
+    .map(c => ({ ...c, product: PRODUCTS.find(p => p.id === c.productId) }))
+    .filter(c => c.product);
+
+  cartEl.innerHTML = `<div class="cart-items">` + enriched.map(c => `
+    <div class="cart-item">
+      <div class="cart-item-thumb">
+        <img
+          src="${c.product.image}"
+          alt="${c.product.name}"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        />
+        <span class="thumb-placeholder" style="display:none;">${c.product.emoji}</span>
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${c.product.name}</div>
+        <div class="cart-item-price">$${c.product.price.toFixed(2)} each · ${c.product.type}</div>
+      </div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(${c.productId}, ${c.qty - 1})">−</button>
+        <span class="qty-num">${c.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${c.productId}, ${c.qty + 1})">+</button>
+      </div>
+      <span class="cart-item-total">$${(c.product.price * c.qty).toFixed(2)}</span>
+      <button class="cart-remove" onclick="removeFromCart(${c.productId})" title="Remove">✕</button>
+    </div>
+  `).join('') + `</div>`;
+
+  // Order summary
+  const subtotal = enriched.reduce((sum, c) => sum + c.product.price * c.qty, 0);
+  const shipping = subtotal > 100 ? 0 : 9.99;
+  const tax      = subtotal * 0.08;
+  const total    = subtotal + shipping + tax;
+
+  summaryEl.innerHTML = `
+    <div class="order-summary">
+      <div class="summary-title">Order Summary</div>
+      <div class="summary-line"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+      <div class="summary-line">
+        <span>Shipping</span>
+        <span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span>
+      </div>
+      <div class="summary-line"><span>Tax (8%)</span><span>$${tax.toFixed(2)}</span></div>
+      <div class="summary-line total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+      <div class="promo-wrap">
+        <input class="promo-input" id="promoInput" placeholder="Promo code" />
+        <button class="btn-secondary" onclick="applyPromo()">Apply</button>
+      </div>
+      <button class="checkout-btn" onclick="checkout()">Checkout</button>
+      <div class="checkout-note">🔒 Secure checkout · Free shipping over $100</div>
+    </div>`;
 }
 
 function changeQty(productId, qty) {
   DB.updateQty(productId, qty);
+  updateCartBadge();
   renderCart();
 }
 
-function switchView(name) {
-  document.getElementById('view-shop').style.display = name === 'shop' ? 'block' : 'none';
-  document.getElementById('view-cart').style.display = name === 'cart' ? 'block' : 'none';
+function removeFromCart(productId) {
+  DB.removeFromCart(productId);
+  updateCartBadge();
+  renderCart();
+  toast('Item removed from cart.', 'error');
 }
+
+function applyPromo() {
+  const code = document.getElementById('promoInput').value.trim().toUpperCase();
+  if (code === 'SAVE10') {
+    toast('10% discount applied!', 'success');
+  } else {
+    toast('Invalid promo code.', 'error');
+  }
+}
+
+function checkout() {
+  switchView('success');
+}
+
+function clearCartAndReturn() {
+  DB.clearCart();
+  updateCartBadge();
+  switchView('shop');
+}
+
+function updateCartBadge() {
+  const total = DB.getCart().reduce((sum, c) => sum + c.qty, 0);
+  document.getElementById('cartCount').textContent = total;
+}
+
+// Toast Notifications
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast-msg ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
 
 // Initialise
 
 renderProducts();
+updateCartBadge();
