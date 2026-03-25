@@ -5,7 +5,7 @@ const PRODUCTS = [
     name: 'Mega Evolution Booster Box',
     category: 'Mega Evolution',
     type: 'Booster Box (36 Packs)',
-    image: 'images/mega-evolution-booster-box.jpg',
+    image: 'images/mega-evolution-booster-box.png',
     price: 339.99,
     emoji: '📦'
   },
@@ -14,8 +14,8 @@ const PRODUCTS = [
     name: 'Mega Evolution Booster Bundle',
     category: 'Mega Evolution',
     type: 'Booster Bundle (6 Packs)',
-    image: 'images/mega-evolution-booster-bundle.jpg',
-    price: 69.99,
+    image: 'images/mega-evolution-booster-bundle.png',
+    price: 59.99,
     emoji: '🎁'
   },
   {
@@ -27,7 +27,7 @@ const PRODUCTS = [
     price: 119.99,
     emoji: '⭐'
   },
-    {
+  {
     id: 4,
     name: 'Phantasmal Flames Booster Box',
     category: 'Phantasmal Flames',
@@ -41,8 +41,8 @@ const PRODUCTS = [
     name: 'Phantasmal Flames Booster Bundle',
     category: 'Phantasmal Flames',
     type: 'Booster Bundle (6 Packs)',
-    image: 'images/phantasmal-flames-booster-bundle.jpg',
-    price: 69.99,
+    image: 'images/phantasmal-flames-booster-bundle.png',
+    price: 59.99,
     emoji: '🎁'
   },
   {
@@ -50,14 +50,105 @@ const PRODUCTS = [
     name: 'Phantasmal Flames Elite Trainer Box',
     category: 'Phantasmal Flames',
     type: 'Elite Trainer Box',
-    image: 'images/phantasmal-flames-etb.jpg',
+    image: 'images/phantasmal-flames-etb.png',
     price: 119.99,
     emoji: '⭐'
+  },
+  {
+    id: 7,
+    name: 'Ascended Heroes Elite Trainer Box',
+    category: 'Ascended Heroes',
+    type: 'Elite Trainer Box',
+    image: 'images/ascended-heroes-etb.png',
+    price: 119.99,
+    emoji: '⭐'
+  },
+  {
+    id: 8,
+    name: 'Ascended Heroes Booster Bundle',
+    category: 'Ascended Heroes',
+    type: 'Booster Bundle (6 Packs)',
+    image: 'images/ascended-heroes-booster-bundle.png',
+    price: 69.99,
+    emoji: '🎁'
+  },
+  {
+    id: 9,
+    name: 'Ascended Heroes Pin Collection',
+    category: 'Ascended Heroes',
+    type: 'Pin Collection (5 Packs)',
+    image: 'images/ascended-heroes-pin-collection.png',
+    price: 49.99,
+    emoji: '🎁'
+  },
+  {
+    id: 10,
+    name: 'Perfect Order Booster Box',
+    category: 'Perfect Order',
+    type: 'Booster Box (36 Packs)',
+    image: 'images/perfect-order-booster-box.png',
+    price: 339.99,
+    emoji: '📦'
+  },
+  {
+    id: 11,
+    name: 'Perfect Order Booster Bundle',
+    category: 'Perfect Order',
+    type: 'Booster Bundle (6 Packs)',
+    image: 'images/perfect-order-booster-bundle.png',
+    price: 59.99,
+    emoji: '🎁'
+  },
+  {
+    id: 12,
+    name: 'Perfect Order Elite Trainer Box',
+    category: 'Perfect Order',
+    type: 'Elite Trainer Box',
+    image: 'images/perfect-order-etb.png',
+    price: 119.99,
+    emoji: '⭐'
+  },
+  {
+    id: 13,
+    name: 'Chaos Rising Booster Box',
+    category: 'Chaos Rising',
+    type: 'Booster Box (36 Packs)',
+    image: 'images/chaos-rising-booster-box.png',
+    price: 339.99,
+    emoji: '📦'
+  },
+  {
+    id: 14,
+    name: 'Chaos Rising Booster Bundle',
+    category: 'Chaos Rising',
+    type: 'Booster Bundle (6 Packs)',
+    image: 'images/chaos-rising-booster-bundle.png',
+    price: 59.99,
+    emoji: '🎁'
+  },
+  {
+    id: 15,
+    name: 'Chaos Rising Elite Trainer Box',
+    category: 'Chaos Rising',
+    type: 'Elite Trainer Box',
+    image: 'images/chaos-rising-etb.png',
+    price: 119.99,
+    emoji: '⭐'
+  },
+  {
+    id: 16,
+    name: 'PSA 10 Mega Charizard X ex',
+    category: 'Graded Cards',
+    type: 'Slab',
+    image: 'images/psa-10-mega-charizard-x.png',
+    price: 1499.99,
+    emoji: '🧱'
   },
 ];
 
 // State
 let activeCategory = 'All';
+let promoApplied = false;
 
 // Cart
 const DB = {
@@ -233,14 +324,16 @@ function renderCart() {
 
   // Order summary
   const subtotal = enriched.reduce((sum, c) => sum + c.product.price * c.qty, 0);
+  const discount = promoApplied ? subtotal * 0.10 : 0;
   const shipping = subtotal > 100 ? 0 : 9.99;
   const tax      = subtotal * 0.08;
-  const total    = subtotal + shipping + tax;
+  const total    = subtotal - discount + shipping + tax;
 
   summaryEl.innerHTML = `
     <div class="order-summary">
       <div class="summary-title">Order Summary</div>
       <div class="summary-line"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+      ${promoApplied ? `<div class="summary-line" style="color: green;"><span>Discount (10%)</span><span>-$${discount.toFixed(2)}</span></div>` : ''}
       <div class="summary-line">
         <span>Shipping</span>
         <span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span>
@@ -272,8 +365,11 @@ function removeFromCart(productId) {
 function applyPromo() {
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
   if (code === 'SAVE10') {
+    promoApplied = true;
+    renderCart();
     toast('10% discount applied!', 'success');
   } else {
+    promoApplied = false;
     toast('Invalid promo code.', 'error');
   }
 }
@@ -284,6 +380,7 @@ function checkout() {
 
 function clearCartAndReturn() {
   DB.clearCart();
+  promoApplied = false;
   updateCartBadge();
   switchView('shop');
 }
