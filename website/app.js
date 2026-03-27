@@ -399,8 +399,29 @@ function toast(msg, type = 'success') {
   setTimeout(() => el.remove(), 3000);
 }
 
+// Background Music
+document.addEventListener('click', function startMusic() {
+  const music = document.getElementById('background_music');
+  const record = document.querySelector('.music-player');
+  if (music.paused) {
+    music.volume = 0.2;
+    music.play();
+    record.style.animationPlayState = 'running';
+  }
+}, { once: true });
+
+function toggleMusic() {
+  const music = document.getElementById('background_music');
+  const record = document.querySelector('.music-player');
+  if (music.paused) {
+    music.play();
+    record.style.animationPlayState = 'running';
+  } else {
+    music.pause();
+    record.style.animationPlayState = 'paused';
+  }
+}
 
 // Initialise
-
 renderProducts();
 updateCartBadge();
