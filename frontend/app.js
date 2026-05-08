@@ -1,4 +1,17 @@
-// Products
+// base URL for all API calls
+const API_URL = 'http://localhost:5000/api';
+
+// fetch products from the backend
+async function fetchProducts() {
+  try {
+    const res = await fetch(`${API_URL}/products`);
+    const products = await res.json();
+    return products;
+  } catch (err) {
+    console.error('error fetching products:', err);
+    return [];
+  }
+}
 
 // State
 let activeCategory = 'All';
@@ -46,18 +59,19 @@ const DB = {
 };
 
 // Render
-function renderProducts() {
+async function renderProducts() {
+  const products = await fetchProducts();
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  const grid  = document.getElementById('productsGrid');
+  const grid = document.getElementById('productsGrid');
 
   // Build category chips
-  const categories = ['All', ...new Set(PRODUCTS.map(p => p.category))];
+  const categories = ['All', ...new Set(products.map(p => p.category))];
   document.getElementById('filterChips').innerHTML = categories
     .map(c => `<button class="chip ${activeCategory === c ? 'active' : ''}" onclick="filterCategory('${c}')">${c}</button>`)
     .join('');
 
   // Filter
-  let filtered = PRODUCTS;
+  let filtered = products;
   if (activeCategory !== 'All') {
     filtered = filtered.filter(p => p.category === activeCategory);
   }
@@ -97,7 +111,7 @@ function renderProducts() {
         <div class="product-type">${p.type}</div>
         <div class="product-footer">
           <span class="product-price">$${p.price.toFixed(2)}</span>
-          <button class="add-to-cart-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+          <button class="add-to-cart-btn" onclick="addToCart('${p._id}')">Add to Cart</button>
         </div>
       </div>
     </div>
