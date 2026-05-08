@@ -126,9 +126,11 @@ function filterCategory(cat) {
 // Navigation
 
 function switchView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.querySelector('.cart-nav-btn').classList.toggle('active', name === 'cart');
+  document.getElementById('view-shop').style.display     = name === 'shop'     ? 'block' : 'none';
+  document.getElementById('view-cart').style.display     = name === 'cart'     ? 'block' : 'none';
+  document.getElementById('view-success').style.display  = name === 'success'  ? 'block' : 'none';
+  document.getElementById('view-login').style.display    = name === 'login'    ? 'block' : 'none';
+  document.getElementById('view-register').style.display = name === 'register' ? 'block' : 'none';
 
   if (name === 'cart') renderCart();
   if (name === 'shop') renderProducts();
@@ -289,6 +291,99 @@ function toggleMusic() {
     record.style.animationPlayState = 'paused';
   }
 }
+
+// Register a new user
+async function register() {
+  const username = document.getElementById('registerUsername').value.trim();
+  const email    = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value.trim();
+
+  if (!username || !email || !password) {
+    toast('Please fill in all fields.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.message, 'error');
+      return;
+    }
+    toast('Account created! Please log in.', 'success');
+    switchView('login');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
+}
+
+// Log in
+async function login() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!email || !password) {
+    toast('Please fill in all fields.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.message, 'error');
+      return;
+    }
+
+    // save token and user to localStorage
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    updateNavForUser(data.user);
+    toast(`Welcome back, ${data.user.username}!`, 'success');
+    switchView('shop');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
+}
+
+// Log out
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  updateNavForUser(null);
+  switchView('shop');
+  toast('Logged out.', 'success');
+}
+
+// Update header based on login state
+function updateNavForUser(user) {
+  const usernameEl  = document.getElementById('navUsername');
+  const loginBtn    = document.getElementById('navLoginBtn');
+  const logoutBtn   = document.getElementById('navLogoutBtn');
+
+  if (user) {
+    usernameEl.textContent = `Hi, ${user.username}`;
+    loginBtn.style.display  = 'none';
+    logoutBtn.style.display = 'block';
+  } else {
+    usernameEl.textContent  = '';
+    loginBtn.style.display  = 'block';
+    logoutBtn.style.display = 'none';
+  }
+}
+
+// Check if user is already logged in on page load
+const savedUser = localStorage.getItem('user');
+if (savedUser) updateNavForUser(JSON.parse(savedUser));
 
 // Initialise
 renderProducts();

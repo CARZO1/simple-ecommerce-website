@@ -534,3 +534,69 @@ main {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+.auth-box {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.auth-box h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.auth-box .btn-primary {
+  width: 100%;
+  padding: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.auth-switch span {
+  color: var(--accent);
+  cursor: pointer;
+}
+.auth-switch span:hover { text-decoration: underline; }
+
+.auth-box .form-group {
+  margin-bottom: 1rem;
+}
+
+.auth-box .form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.auth-box .form-input {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: 0.15s;
+}
+
+.auth-box .form-input:focus {
+  border-color: var(--accent);
+}
+
+#navUsername {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
