@@ -45,8 +45,8 @@ router.get('/:id', async (req, res) => {
 // add a product (admin only)
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
-    const { name, category, type, price, image, badge, emoji } = req.body;
-    const product = new Product({ name, category, type, price, image, badge, emoji });
+    const { name, category, type, price, image, emoji } = req.body;
+    const product = new Product({ name, category, type, price, image, emoji });
     await product.save();
     res.status(201).json(product);
 

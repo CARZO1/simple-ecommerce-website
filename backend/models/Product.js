@@ -4,9 +4,8 @@ const productSchema = new mongoose.Schema({
   name:     { type: String, required: true },
   category: { type: String, required: true },
   type:     { type: String, required: true },
-  price:    { type: Number, required: true },
   image:    { type: String },
-  badge:    { type: String },
+  price:    { type: Number, required: true },
   emoji:    { type: String }
 }, { timestamps: true });
 
