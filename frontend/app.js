@@ -1,5 +1,5 @@
 // base URL for all API calls
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 // fetch products from the backend
 async function fetchProducts() {
@@ -13,50 +13,19 @@ async function fetchProducts() {
   }
 }
 
+// get the token from localStorage
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+// check if user is logged in
+function isLoggedIn() {
+  return !!getToken();
+}
+
 // State
 let activeCategory = 'All';
 let promoApplied = false;
-
-// Cart
-const DB = {
-  getCart() {
-    return JSON.parse(localStorage.getItem('cart') || '[]');
-  },
-
-  saveCart(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  },
-
-  addToCart(productId) {
-    const cart = this.getCart();
-    const existing = cart.find(c => c.productId === productId);
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({ productId, qty: 1 });
-    }
-    this.saveCart(cart);
-  },
-
-  removeFromCart(productId) {
-    const cart = this.getCart().filter(c => c.productId !== productId);
-    this.saveCart(cart);
-  },
-
-  updateQty(productId, qty) {
-    let cart = this.getCart();
-    if (qty <= 0) {
-      cart = cart.filter(c => c.productId !== productId);
-    } else {
-      cart.find(c => c.productId === productId).qty = qty;
-    }
-    this.saveCart(cart);
-  },
-
-  clearCart() {
-    this.saveCart([]);
-  }
-};
 
 // Render
 async function renderProducts() {
@@ -137,99 +106,162 @@ function switchView(name) {
 }
 
 // Cart (Create, Read, Update, Delete)
-function addToCart(productId) {
-  DB.addToCart(productId);
-  updateCartBadge();
-  const product = PRODUCTS.find(p => p.id === productId);
-  toast(`${product.name} added to cart!`, 'success');
+async function addToCart(productId) {
+  if (!isLoggedIn()) {
+    toast('Please log in to add items to your cart.', 'error');
+    switchView('login');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/cart`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ productId, qty: 1 })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.message, 'error');
+      return;
+    }
+    updateCartBadge();
+    toast('Added to cart!', 'success');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
 }
 
-function renderCart() {
-  const cart      = DB.getCart();
+async function renderCart() {
   const cartEl    = document.getElementById('cartItems');
   const summaryEl = document.getElementById('orderSummary');
   const countEl   = document.getElementById('cartItemCount');
 
-  const totalQty = cart.reduce((sum, c) => sum + c.qty, 0);
-  countEl.textContent = totalQty > 0 ? `(${totalQty} item${totalQty !== 1 ? 's' : ''})` : '';
-
-  if (cart.length === 0) {
+  if (!isLoggedIn()) {
     cartEl.innerHTML = `
       <div class="cart-empty">
         <div class="big-emoji">🛒</div>
-        <h3>Your cart is empty</h3>
-        <p>Add some products to get started.</p>
+        <h3>Please log in to view your cart</h3>
+        <button class="btn-primary" onclick="switchView('login')">Login</button>
       </div>`;
     summaryEl.innerHTML = '';
     return;
   }
 
-  const enriched = cart
-    .map(c => ({ ...c, product: PRODUCTS.find(p => p.id === c.productId) }))
-    .filter(c => c.product);
+  try {
+    const res = await fetch(`${API_URL}/cart`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const cart = await res.json();
 
-  cartEl.innerHTML = `<div class="cart-items">` + enriched.map(c => `
-    <div class="cart-item">
-      <div class="cart-item-thumb">
-        <img
-          src="${c.product.image}"
-          alt="${c.product.name}"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        />
-        <span class="thumb-placeholder" style="display:none;">${c.product.emoji}</span>
-      </div>
-      <div class="cart-item-info">
-        <div class="cart-item-name">${c.product.name}</div>
-        <div class="cart-item-price">$${c.product.price.toFixed(2)} each · ${c.product.type}</div>
-      </div>
-      <div class="qty-control">
-        <button class="qty-btn" onclick="changeQty(${c.productId}, ${c.qty - 1})">−</button>
-        <span class="qty-num">${c.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${c.productId}, ${c.qty + 1})">+</button>
-      </div>
-      <span class="cart-item-total">$${(c.product.price * c.qty).toFixed(2)}</span>
-      <button class="cart-remove" onclick="removeFromCart(${c.productId})" title="Remove">✕</button>
-    </div>
-  `).join('') + `</div>`;
+    const totalQty = cart.items.reduce((sum, c) => sum + c.qty, 0);
+    countEl.textContent = totalQty > 0 ? `(${totalQty} item${totalQty !== 1 ? 's' : ''})` : '';
 
-  // Order summary
-  const subtotal = enriched.reduce((sum, c) => sum + c.product.price * c.qty, 0);
-  const discount = promoApplied ? subtotal * 0.10 : 0;
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax      = subtotal * 0.08;
-  const total    = subtotal - discount + shipping + tax;
+    if (cart.items.length === 0) {
+      cartEl.innerHTML = `
+        <div class="cart-empty">
+          <div class="big-emoji">🛒</div>
+          <h3>Your cart is empty</h3>
+          <p>Add some products to get started.</p>
+        </div>`;
+      summaryEl.innerHTML = '';
+      return;
+    }
 
-  summaryEl.innerHTML = `
-    <div class="order-summary">
-      <div class="summary-title">Order Summary</div>
-      <div class="summary-line"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-      ${promoApplied ? `<div class="summary-line" style="color: green;"><span>Discount (10%)</span><span>-$${discount.toFixed(2)}</span></div>` : ''}
-      <div class="summary-line">
-        <span>Shipping</span>
-        <span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span>
+    cartEl.innerHTML = `<div class="cart-items">` + cart.items.map(c => `
+      <div class="cart-item">
+        <div class="cart-item-thumb">
+          <img
+            src="${c.product.image}"
+            alt="${c.product.name}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          />
+          <span class="thumb-placeholder" style="display:none;">${c.product.emoji}</span>
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${c.product.name}</div>
+          <div class="cart-item-price">$${c.product.price.toFixed(2)} each · ${c.product.type}</div>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${c.product._id}', ${c.qty - 1})">−</button>
+          <span class="qty-num">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${c.product._id}', ${c.qty + 1})">+</button>
+        </div>
+        <span class="cart-item-total">$${(c.product.price * c.qty).toFixed(2)}</span>
+        <button class="cart-remove" onclick="removeFromCart('${c.product._id}')" title="Remove">✕</button>
       </div>
-      <div class="summary-line"><span>Tax (8%)</span><span>$${tax.toFixed(2)}</span></div>
-      <div class="summary-line total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
-      <div class="promo-wrap">
-        <input class="promo-input" id="promoInput" placeholder="Promo code" />
-        <button class="btn-secondary" onclick="applyPromo()">Apply</button>
-      </div>
-      <button class="checkout-btn" onclick="checkout()">Checkout</button>
-      <div class="checkout-note">🔒 Secure checkout · Free shipping over $100</div>
-    </div>`;
+    `).join('') + `</div>`;
+
+    // order summary
+    const subtotal = cart.items.reduce((sum, c) => sum + c.product.price * c.qty, 0);
+    const discount = promoApplied ? subtotal * 0.10 : 0;
+    const shipping  = subtotal > 100 ? 0 : 9.99;
+    const tax       = subtotal * 0.08;
+    const total     = subtotal - discount + shipping + tax;
+
+    summaryEl.innerHTML = `
+      <div class="order-summary">
+        <div class="summary-title">Order Summary</div>
+        <div class="summary-line"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+        ${promoApplied ? `<div class="summary-line" style="color: green;"><span>Discount (10%)</span><span>-$${discount.toFixed(2)}</span></div>` : ''}
+        <div class="summary-line">
+          <span>Shipping</span>
+          <span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span>
+        </div>
+        <div class="summary-line"><span>Tax (8%)</span><span>$${tax.toFixed(2)}</span></div>
+        <div class="summary-line total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+        <div class="promo-wrap">
+          <input class="promo-input" id="promoInput" placeholder="Promo code" />
+          <button class="btn-secondary" onclick="applyPromo()">Apply</button>
+        </div>
+        <button class="checkout-btn" onclick="checkout()">Checkout</button>
+        <div class="checkout-note">🔒 Secure checkout · Free shipping over $100</div>
+      </div>`;
+
+  } catch (err) {
+    toast('Something went wrong loading your cart.', 'error');
+  }
 }
 
-function changeQty(productId, qty) {
-  DB.updateQty(productId, qty);
-  updateCartBadge();
-  renderCart();
+async function changeQty(productId, qty) {
+  try {
+    const res = await fetch(`${API_URL}/cart/${productId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ qty })
+    });
+    if (!res.ok) {
+      toast('Could not update quantity.', 'error');
+      return;
+    }
+    updateCartBadge();
+    renderCart();
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
 }
 
-function removeFromCart(productId) {
-  DB.removeFromCart(productId);
-  updateCartBadge();
-  renderCart();
-  toast('Item removed from cart.', 'error');
+async function removeFromCart(productId) {
+  try {
+    const res = await fetch(`${API_URL}/cart/${productId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    if (!res.ok) {
+      toast('Could not remove item.', 'error');
+      return;
+    }
+    updateCartBadge();
+    renderCart();
+    toast('Item removed from cart.', 'success');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
 }
 
 function applyPromo() {
@@ -248,16 +280,35 @@ function checkout() {
   switchView('success');
 }
 
-function clearCartAndReturn() {
-  DB.clearCart();
-  promoApplied = false;
-  updateCartBadge();
-  switchView('shop');
+async function clearCartAndReturn() {
+  try {
+    await fetch(`${API_URL}/cart`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    promoApplied = false;
+    updateCartBadge();
+    switchView('shop');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
 }
 
-function updateCartBadge() {
-  const total = DB.getCart().reduce((sum, c) => sum + c.qty, 0);
-  document.getElementById('cartCount').textContent = total;
+async function updateCartBadge() {
+  if (!isLoggedIn()) {
+    document.getElementById('cartCount').textContent = 0;
+    return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/cart`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const cart = await res.json();
+    const total = cart.items.reduce((sum, c) => sum + c.qty, 0);
+    document.getElementById('cartCount').textContent = total;
+  } catch (err) {
+    console.error('error updating cart badge:', err);
+  }
 }
 
 // Toast Notifications
