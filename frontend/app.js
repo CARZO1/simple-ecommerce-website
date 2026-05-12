@@ -100,9 +100,11 @@ function switchView(name) {
   document.getElementById('view-success').style.display  = name === 'success'  ? 'block' : 'none';
   document.getElementById('view-login').style.display    = name === 'login'    ? 'block' : 'none';
   document.getElementById('view-register').style.display = name === 'register' ? 'block' : 'none';
+  document.getElementById('view-orders').style.display   = name === 'orders'   ? 'block' : 'none';
 
   if (name === 'cart') renderCart();
   if (name === 'shop') renderProducts();
+  if (name === 'orders') renderOrders();
 }
 
 // Cart (Create, Read, Update, Delete)
@@ -276,8 +278,93 @@ function applyPromo() {
   }
 }
 
-function checkout() {
-  switchView('success');
+async function checkout() {
+  try {
+    const res = await fetch(`${API_URL}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ promoApplied })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.message, 'error');
+      return;
+    }
+    promoApplied = false;
+    updateCartBadge();
+    switchView('success');
+  } catch (err) {
+    toast('Something went wrong during checkout.', 'error');
+  }
+}
+
+async function renderOrders() {
+  const listEl = document.getElementById('ordersList');
+
+  if (!isLoggedIn()) {
+    listEl.innerHTML = `
+      <div class="cart-empty">
+        <div class="big-emoji">📦</div>
+        <h3>Please log in to view your orders</h3>
+        <button class="btn-primary" onclick="switchView('login')">Login</button>
+      </div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/orders`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const orders = await res.json();
+
+    if (orders.length === 0) {
+      listEl.innerHTML = `
+        <div class="cart-empty">
+          <div class="big-emoji">📦</div>
+          <h3>No orders yet</h3>
+          <p>Your completed orders will appear here.</p>
+          <button class="btn-primary" onclick="switchView('shop')">Start Shopping</button>
+        </div>`;
+      return;
+    }
+
+    listEl.innerHTML = orders.map(order => {
+      const date = new Date(order.createdAt).toLocaleDateString('en-AU', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+      const ref = order._id.slice(-6).toUpperCase();
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-ref">Order #${ref}</div>
+              <div class="order-date">${date}</div>
+            </div>
+            <div class="order-header-right">
+              <span class="status-badge status-${order.status}">${order.status}</span>
+              <div class="order-total">$${order.total.toFixed(2)}</div>
+            </div>
+          </div>
+          <div class="order-items-list">
+            ${order.items.map(item => `
+              <div class="order-item">
+                <span class="order-item-emoji">${item.emoji}</span>
+                <span class="order-item-name">${item.name}</span>
+                <span class="order-item-qty">x${item.qty}</span>
+                <span class="order-item-price">$${(item.price * item.qty).toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+          ${order.discount > 0 ? `<div class="order-promo">Promo SAVE10 applied · -$${order.discount.toFixed(2)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    toast('Something went wrong loading your orders.', 'error');
+  }
 }
 
 async function clearCartAndReturn() {
@@ -421,14 +508,18 @@ function updateNavForUser(user) {
   const loginBtn    = document.getElementById('navLoginBtn');
   const logoutBtn   = document.getElementById('navLogoutBtn');
 
+  const ordersBtn = document.getElementById('navOrdersBtn');
+
   if (user) {
-    usernameEl.textContent = `Hi, ${user.username}`;
+    usernameEl.textContent  = `Hi, ${user.username}`;
     loginBtn.style.display  = 'none';
     logoutBtn.style.display = 'block';
+    ordersBtn.style.display = 'block';
   } else {
     usernameEl.textContent  = '';
     loginBtn.style.display  = 'block';
     logoutBtn.style.display = 'none';
+    ordersBtn.style.display = 'none';
   }
 }
 

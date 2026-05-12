@@ -19,6 +19,7 @@
     <nav>
       <span id="navUsername"></span>
       <button class="nav-btn" id="navLoginBtn" onclick="switchView('login')">Login</button>
+      <button class="nav-btn" id="navOrdersBtn" style="display:none;" onclick="switchView('orders')">My Orders</button>
       <button class="nav-btn" id="navLogoutBtn" style="display:none;" onclick="logout()">Logout</button>
       <button class="nav-btn cart-nav-btn" onclick="switchView('cart')">
         🛒 <span id="cartCount">0</span>
@@ -79,6 +80,15 @@
         <button class="btn-primary" onclick="login()">Login</button>
         <p class="auth-switch">Don't have an account? <span onclick="switchView('register')">Register</span></p>
       </div>
+    </div>
+
+    <!-- Orders View -->
+    <div class="view" id="view-orders">
+      <div class="page-header">
+        <h1>My Orders</h1>
+        <button class="btn-secondary" onclick="switchView('shop')">← Continue Shopping</button>
+      </div>
+      <div id="ordersList"></div>
     </div>
 
     <!-- Register View -->
