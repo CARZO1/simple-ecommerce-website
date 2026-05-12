@@ -9,6 +9,10 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    }
+
     // check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {

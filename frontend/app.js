@@ -441,6 +441,11 @@ async function register() {
     return;
   }
 
+  if (password.length < 8) {
+    toast('Password must be at least 8 characters.', 'error');
+    return;
+  }
+
   try {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
