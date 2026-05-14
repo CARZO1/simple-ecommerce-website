@@ -1,12 +1,16 @@
 // base URL for all API calls
 const API_URL = '/api';
 
+// cache so we only fetch once per page load
+let cachedProducts = null;
+
 // fetch products from the backend
 async function fetchProducts() {
+  if (cachedProducts) return cachedProducts;
   try {
     const res = await fetch(`${API_URL}/products`);
-    const products = await res.json();
-    return products;
+    cachedProducts = await res.json();
+    return cachedProducts;
   } catch (err) {
     console.error('error fetching products:', err);
     return [];
