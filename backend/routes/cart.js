@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Cart = require('../models/Cart');
-const { protect, adminOnly } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // get the logged in user's cart
 router.get('/', protect, async (req, res) => {
@@ -126,17 +126,5 @@ router.delete('/', protect, async (req, res) => {
   }
 });
 
-// admin - get all users' carts
-router.get('/admin/all', protect, adminOnly, async (req, res) => {
-  try {
-    const carts = await Cart.find()
-      .populate('user', 'username email') // only return username and email, not password
-      .populate('items.product');
-    res.json(carts);
-
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
 
 module.exports = router;

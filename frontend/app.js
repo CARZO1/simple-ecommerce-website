@@ -101,10 +101,12 @@ function switchView(name) {
   document.getElementById('view-login').style.display    = name === 'login'    ? 'block' : 'none';
   document.getElementById('view-register').style.display = name === 'register' ? 'block' : 'none';
   document.getElementById('view-orders').style.display   = name === 'orders'   ? 'block' : 'none';
+  document.getElementById('view-admin').style.display    = name === 'admin'    ? 'block' : 'none';
 
-  if (name === 'cart') renderCart();
-  if (name === 'shop') renderProducts();
+  if (name === 'cart')   renderCart();
+  if (name === 'shop')   renderProducts();
   if (name === 'orders') renderOrders();
+  if (name === 'admin')  renderAdmin();
 }
 
 // Cart (Create, Read, Update, Delete)
@@ -514,17 +516,239 @@ function updateNavForUser(user) {
   const logoutBtn   = document.getElementById('navLogoutBtn');
 
   const ordersBtn = document.getElementById('navOrdersBtn');
+  const adminBtn  = document.getElementById('navAdminBtn');
 
   if (user) {
     usernameEl.textContent  = `Hi, ${user.username}`;
     loginBtn.style.display  = 'none';
     logoutBtn.style.display = 'block';
     ordersBtn.style.display = 'block';
+    adminBtn.style.display  = user.role === 'admin' ? 'block' : 'none';
   } else {
     usernameEl.textContent  = '';
     loginBtn.style.display  = 'block';
     logoutBtn.style.display = 'none';
     ordersBtn.style.display = 'none';
+    adminBtn.style.display  = 'none';
+  }
+}
+
+// Admin Panel
+let activeAdminTab = 'orders';
+
+function showAdminTab(tab) {
+  activeAdminTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  renderAdminTab();
+}
+
+async function renderAdmin() {
+  showAdminTab(activeAdminTab);
+}
+
+async function renderAdminTab() {
+  const content = document.getElementById('adminTabContent');
+  content.innerHTML = '<p class="admin-loading">Loading...</p>';
+  if (activeAdminTab === 'orders') await renderAdminOrders();
+  else if (activeAdminTab === 'users')  await renderAdminUsers();
+  else if (activeAdminTab === 'carts')  await renderAdminCarts();
+}
+
+async function renderAdminOrders() {
+  const content = document.getElementById('adminTabContent');
+  try {
+    const res = await fetch(`${API_URL}/admin/orders`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const orders = await res.json();
+
+    if (orders.length === 0) {
+      content.innerHTML = '<p class="admin-empty">No orders yet.</p>';
+      return;
+    }
+
+    content.innerHTML = `
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders.map(order => {
+              const date = new Date(order.createdAt).toLocaleDateString('en-AU', {
+                day: 'numeric', month: 'short', year: 'numeric'
+              });
+              const ref = order._id.slice(-6).toUpperCase();
+              const customer = order.user ? `${order.user.username} (${order.user.email})` : 'Deleted user';
+              return `
+                <tr>
+                  <td><strong>#${ref}</strong></td>
+                  <td>${customer}</td>
+                  <td>${date}</td>
+                  <td>${order.items.length} item${order.items.length !== 1 ? 's' : ''}</td>
+                  <td><strong>$${order.total.toFixed(2)}</strong></td>
+                  <td>
+                    <select class="status-select status-${order.status}" onchange="updateOrderStatus('${order._id}', this)">
+                      <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                      <option value="shipped"    ${order.status === 'shipped'    ? 'selected' : ''}>Shipped</option>
+                      <option value="delivered"  ${order.status === 'delivered'  ? 'selected' : ''}>Delivered</option>
+                      <option value="cancelled"  ${order.status === 'cancelled'  ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    toast('Could not load orders.', 'error');
+  }
+}
+
+async function updateOrderStatus(orderId, selectEl) {
+  const status = selectEl.value;
+  try {
+    const res = await fetch(`${API_URL}/admin/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) {
+      toast('Could not update status.', 'error');
+      return;
+    }
+    // update the select's colour class to match new status
+    selectEl.className = `status-select status-${status}`;
+    toast('Order status updated.', 'success');
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
+}
+
+async function renderAdminUsers() {
+  const content = document.getElementById('adminTabContent');
+  try {
+    const res = await fetch(`${API_URL}/admin/users`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const users = await res.json();
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+
+    if (users.length === 0) {
+      content.innerHTML = '<p class="admin-empty">No users found.</p>';
+      return;
+    }
+
+    content.innerHTML = `
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(user => {
+              const date = new Date(user.createdAt).toLocaleDateString('en-AU', {
+                day: 'numeric', month: 'short', year: 'numeric'
+              });
+              const isSelf  = user._id === currentUser.id;
+              const isAdmin = user.role === 'admin';
+              return `
+                <tr>
+                  <td>${user.username} ${isSelf ? '<span class="you-badge">you</span>' : ''}</td>
+                  <td>${user.email}</td>
+                  <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                  <td>${date}</td>
+                  <td>
+                    ${isSelf || isAdmin
+                      ? '<span class="admin-na">—</span>'
+                      : `<button class="admin-delete-btn" onclick="adminDeleteUser('${user._id}')">Delete</button>`
+                    }
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    toast('Could not load users.', 'error');
+  }
+}
+
+async function adminDeleteUser(userId) {
+  if (!confirm('Delete this user and their cart? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.message, 'error');
+      return;
+    }
+    toast('User deleted.', 'success');
+    renderAdminTab();
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
+}
+
+async function renderAdminCarts() {
+  const content = document.getElementById('adminTabContent');
+  try {
+    const res = await fetch(`${API_URL}/admin/carts`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const carts = await res.json();
+
+    const activeCarts = carts.filter(c => c.items.length > 0);
+
+    if (activeCarts.length === 0) {
+      content.innerHTML = '<p class="admin-empty">No active carts.</p>';
+      return;
+    }
+
+    content.innerHTML = activeCarts.map(cart => {
+      const subtotal = cart.items.reduce((sum, c) => sum + c.product.price * c.qty, 0);
+      return `
+        <div class="admin-cart-card">
+          <div class="admin-cart-header">
+            <strong>${cart.user.username}</strong>
+            <span class="admin-cart-email">${cart.user.email}</span>
+            <span class="admin-cart-total">$${subtotal.toFixed(2)}</span>
+          </div>
+          <div class="order-items-list">
+            ${cart.items.map(c => `
+              <div class="order-item">
+                <span class="order-item-emoji">${c.product.emoji}</span>
+                <span class="order-item-name">${c.product.name}</span>
+                <span class="order-item-qty">x${c.qty}</span>
+                <span class="order-item-price">$${(c.product.price * c.qty).toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    toast('Could not load carts.', 'error');
   }
 }
 

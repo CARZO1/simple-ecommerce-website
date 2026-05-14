@@ -19,6 +19,7 @@
     <nav>
       <span id="navUsername"></span>
       <button class="nav-btn" id="navLoginBtn" onclick="switchView('login')">Login</button>
+      <button class="nav-btn" id="navAdminBtn" style="display:none;" onclick="switchView('admin')">Admin</button>
       <button class="nav-btn" id="navOrdersBtn" style="display:none;" onclick="switchView('orders')">My Orders</button>
       <button class="nav-btn" id="navLogoutBtn" style="display:none;" onclick="logout()">Logout</button>
       <button class="nav-btn cart-nav-btn" onclick="switchView('cart')">
@@ -80,6 +81,19 @@
         <button class="btn-primary" onclick="login()">Login</button>
         <p class="auth-switch">Don't have an account? <span onclick="switchView('register')">Register</span></p>
       </div>
+    </div>
+
+    <!-- Admin View -->
+    <div class="view" id="view-admin">
+      <div class="page-header">
+        <h1>Admin Panel</h1>
+      </div>
+      <div class="admin-tabs" id="adminTabs">
+        <button class="admin-tab active" data-tab="orders" onclick="showAdminTab('orders')">Orders</button>
+        <button class="admin-tab" data-tab="users" onclick="showAdminTab('users')">Users</button>
+        <button class="admin-tab" data-tab="carts" onclick="showAdminTab('carts')">Carts</button>
+      </div>
+      <div id="adminTabContent"></div>
     </div>
 
     <!-- Orders View -->

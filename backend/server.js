@@ -24,6 +24,10 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
 
+// admin routes - protect + adminOnly applied here so every route underneath is automatically secured
+const { protect, adminOnly } = require('./middleware/auth');
+app.use('/api/admin', protect, adminOnly, require('./routes/admin'));
+
 // serve frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
