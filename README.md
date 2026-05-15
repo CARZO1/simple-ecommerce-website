@@ -1,5 +1,8 @@
 31748 Programming on the Internet - Assignment 2
+
 24754069 Domenic Carzo
+
+Video Recording of website -> [HERE](https://www.youtube.com/watch?v=XrOT7SqIPJY)
 
 # PokéCart (Pokemon TCG Store)
 
