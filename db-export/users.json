@@ -68,5 +68,15 @@
     "createdAt": "2026-05-14T13:07:46.072Z",
     "updatedAt": "2026-05-14T13:07:46.072Z",
     "__v": 0
+  },
+  {
+    "_id": "6a06ca383105e6e520007615",
+    "username": "Doge",
+    "email": "doge@gmail.com",
+    "password": "$2b$10$V5dUb9tv01dtc77C8g6oZOzA3emP/pM.lABcchy/1nTpdBRKDBL2G",
+    "role": "user",
+    "createdAt": "2026-05-15T07:24:40.894Z",
+    "updatedAt": "2026-05-15T07:24:40.894Z",
+    "__v": 0
   }
 ]

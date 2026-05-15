@@ -134,5 +134,98 @@
     "createdAt": "2026-05-14T13:08:24.857Z",
     "updatedAt": "2026-05-14T13:08:24.857Z",
     "__v": 0
+  },
+  {
+    "_id": "6a06ca633105e6e520007662",
+    "user": "6a06ca383105e6e520007615",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644117",
+        "name": "Mega Evolution Booster Box",
+        "price": 339.99,
+        "image": "images/mega-evolution-booster-box.png",
+        "emoji": "📦",
+        "qty": 1,
+        "_id": "6a06ca633105e6e520007663"
+      },
+      {
+        "product": "69fdf6cc919f494d9164411d",
+        "name": "Ascended Heroes Elite Trainer Box",
+        "price": 119.99,
+        "image": "images/ascended-heroes-etb.png",
+        "emoji": "⭐",
+        "qty": 1,
+        "_id": "6a06ca633105e6e520007664"
+      },
+      {
+        "product": "69fdf6cc919f494d9164411b",
+        "name": "Phantasmal Flames Booster Bundle",
+        "price": 59.99,
+        "image": "images/phantasmal-flames-booster-bundle.png",
+        "emoji": "🎁",
+        "qty": 1,
+        "_id": "6a06ca633105e6e520007665"
+      }
+    ],
+    "subtotal": 519.97,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 41.5976,
+    "total": 561.5676000000001,
+    "promoApplied": false,
+    "status": "delivered",
+    "createdAt": "2026-05-15T07:25:23.185Z",
+    "updatedAt": "2026-05-15T07:26:15.767Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a06ca6f3105e6e52000766d",
+    "user": "6a06ca383105e6e520007615",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d9164411d",
+        "name": "Ascended Heroes Elite Trainer Box",
+        "price": 119.99,
+        "image": "images/ascended-heroes-etb.png",
+        "emoji": "⭐",
+        "qty": 1,
+        "_id": "6a06ca6f3105e6e52000766e"
+      }
+    ],
+    "subtotal": 119.99,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 9.5992,
+    "total": 129.5892,
+    "promoApplied": false,
+    "status": "cancelled",
+    "createdAt": "2026-05-15T07:25:35.646Z",
+    "updatedAt": "2026-05-15T07:26:18.346Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a06e913847c9ac61aa0285d",
+    "user": "6a0312f064f27c0ef09b1365",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644117",
+        "name": "Mega Evolution Booster Box",
+        "price": 339.99,
+        "image": "images/mega-evolution-booster-box.png",
+        "emoji": "📦",
+        "qty": 1,
+        "_id": "6a06e913847c9ac61aa0285e"
+      }
+    ],
+    "subtotal": 339.99,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 27.1992,
+    "total": 367.1892,
+    "promoApplied": false,
+    "status": "processing",
+    "createdAt": "2026-05-15T09:36:19.604Z",
+    "updatedAt": "2026-05-15T09:36:19.604Z",
+    "__v": 0
   }
 ]
