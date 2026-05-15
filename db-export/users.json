@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "69fdf655d2a9cd4bc18f1384",
+    "username": "dom",
+    "email": "test@gmail.com",
+    "password": "$2b$10$ODbYVYl7A9ivqsMPWj8bDetIVLQpNy04YMX2jGkAm.nd.1eglljg.",
+    "role": "user",
+    "createdAt": "2026-05-08T14:42:29.121Z",
+    "updatedAt": "2026-05-08T14:42:29.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a02b0a3ebe2ef272d16963f",
+    "username": "doogee",
+    "email": "doogee@gmail.com",
+    "password": "$2b$10$b.CUyd1ZCl8Mi4ptckMe9.XJWtOyrOCpTNQ8VjE1OgfE24emI3QvS",
+    "role": "user",
+    "createdAt": "2026-05-12T04:46:27.226Z",
+    "updatedAt": "2026-05-12T04:46:27.226Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a02eb1c4739a6e7bcbeb41c",
+    "username": "test123",
+    "email": "google@gmail.com",
+    "password": "$2b$10$QgnyOyDzZ3LBuQya2j2UhOrtJWXs4JveJ4X6t8qBlIgZUKAZ94Qqa",
+    "role": "user",
+    "createdAt": "2026-05-12T08:55:56.900Z",
+    "updatedAt": "2026-05-12T08:55:56.900Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a02eb724739a6e7bcbeb43e",
+    "username": "test1234",
+    "email": "pikachu@gmail.com",
+    "password": "$2b$10$UXaEdLoWijcYlWKvzphLc.JgJeZgNSK2wbsTzi/HPz6.Vicu.mOW6",
+    "role": "user",
+    "createdAt": "2026-05-12T08:57:22.122Z",
+    "updatedAt": "2026-05-12T08:57:22.122Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a0312f064f27c0ef09b1365",
+    "username": "the_admin",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$M4.FlWhoxqukNHmmhc/WtuGWKnuuS1SvZTbZKlLdlHYPZLyNFybga",
+    "role": "admin",
+    "createdAt": "2026-05-12T11:45:52.550Z",
+    "updatedAt": "2026-05-12T11:45:52.550Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a05c8f12e6f34cb0b24ff6d",
+    "username": "John Doe",
+    "email": "johndoe@gmail.com",
+    "password": "$2b$10$3T3KR9CkYs3N96V8vxJWlOMUx5iV3SgZjS4rsRyN2vo7vJyzYMnra",
+    "role": "user",
+    "createdAt": "2026-05-14T13:06:57.781Z",
+    "updatedAt": "2026-05-14T13:06:57.781Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a05c9222e6f34cb0b24ffff",
+    "username": "Jane Doe",
+    "email": "janedoe@gmail.com",
+    "password": "$2b$10$Ophwo6vGqG8hoQNkfGkAlOH8KgFGQJy7iIt5DW1wVysi3fxGZgAvG",
+    "role": "user",
+    "createdAt": "2026-05-14T13:07:46.072Z",
+    "updatedAt": "2026-05-14T13:07:46.072Z",
+    "__v": 0
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "_id": "6a030f10bd88da1c8663d563",
+    "user": "6a02eb724739a6e7bcbeb43e",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644117",
+        "name": "Mega Evolution Booster Box",
+        "price": 339.99,
+        "image": "images/mega-evolution-booster-box.png",
+        "emoji": "📦",
+        "qty": 1,
+        "_id": "6a030f10bd88da1c8663d564"
+      },
+      {
+        "product": "69fdf6cc919f494d91644118",
+        "name": "Mega Evolution Booster Bundle",
+        "price": 59.99,
+        "image": "images/mega-evolution-booster-bundle.png",
+        "emoji": "🎁",
+        "qty": 1,
+        "_id": "6a030f10bd88da1c8663d565"
+      },
+      {
+        "product": "69fdf6cc919f494d91644125",
+        "name": "Chaos Rising Elite Trainer Box",
+        "price": 119.99,
+        "image": "images/chaos-rising-etb.png",
+        "emoji": "⭐",
+        "qty": 1,
+        "_id": "6a030f10bd88da1c8663d566"
+      }
+    ],
+    "subtotal": 519.97,
+    "discount": 51.99700000000001,
+    "shipping": 0,
+    "tax": 41.5976,
+    "total": 509.5706,
+    "promoApplied": true,
+    "status": "delivered",
+    "createdAt": "2026-05-12T11:29:20.084Z",
+    "updatedAt": "2026-05-14T13:05:54.839Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a05c8ca2e6f34cb0b24ff65",
+    "user": "6a0312f064f27c0ef09b1365",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644117",
+        "name": "Mega Evolution Booster Box",
+        "price": 339.99,
+        "image": "images/mega-evolution-booster-box.png",
+        "emoji": "📦",
+        "qty": 1,
+        "_id": "6a05c8ca2e6f34cb0b24ff66"
+      }
+    ],
+    "subtotal": 339.99,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 27.1992,
+    "total": 367.1892,
+    "promoApplied": false,
+    "status": "shipped",
+    "createdAt": "2026-05-14T13:06:18.494Z",
+    "updatedAt": "2026-05-14T13:06:24.546Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a05c8ff2e6f34cb0b24ff79",
+    "user": "6a05c8f12e6f34cb0b24ff6d",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d9164411d",
+        "name": "Ascended Heroes Elite Trainer Box",
+        "price": 119.99,
+        "image": "images/ascended-heroes-etb.png",
+        "emoji": "⭐",
+        "qty": 1,
+        "_id": "6a05c8ff2e6f34cb0b24ff7a"
+      },
+      {
+        "product": "69fdf6cc919f494d91644120",
+        "name": "Perfect Order Booster Box",
+        "price": 339.99,
+        "image": "images/perfect-order-booster-box.png",
+        "emoji": "📦",
+        "qty": 1,
+        "_id": "6a05c8ff2e6f34cb0b24ff7b"
+      }
+    ],
+    "subtotal": 459.98,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 36.7984,
+    "total": 496.77840000000003,
+    "promoApplied": false,
+    "status": "processing",
+    "createdAt": "2026-05-14T13:07:11.186Z",
+    "updatedAt": "2026-05-14T13:07:11.186Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a05c9482e6f34cb0b250013",
+    "user": "6a05c9222e6f34cb0b24ffff",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644125",
+        "name": "Chaos Rising Elite Trainer Box",
+        "price": 119.99,
+        "image": "images/chaos-rising-etb.png",
+        "emoji": "⭐",
+        "qty": 1,
+        "_id": "6a05c9482e6f34cb0b250014"
+      },
+      {
+        "product": "69fdf6cc919f494d91644124",
+        "name": "Chaos Rising Booster Bundle",
+        "price": 59.99,
+        "image": "images/chaos-rising-booster-bundle.png",
+        "emoji": "🎁",
+        "qty": 1,
+        "_id": "6a05c9482e6f34cb0b250015"
+      }
+    ],
+    "subtotal": 179.98,
+    "discount": 0,
+    "shipping": 0,
+    "tax": 14.398399999999999,
+    "total": 194.3784,
+    "promoApplied": false,
+    "status": "processing",
+    "createdAt": "2026-05-14T13:08:24.857Z",
+    "updatedAt": "2026-05-14T13:08:24.857Z",
+    "__v": 0
+  }
+]

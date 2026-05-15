@@ -1,0 +1,77 @@
+[
+  {
+    "_id": "6a02b0adebe2ef272d169640",
+    "user": "6a02b0a3ebe2ef272d16963f",
+    "items": [],
+    "createdAt": "2026-05-12T04:46:37.500Z",
+    "updatedAt": "2026-05-12T04:47:01.580Z",
+    "__v": 2
+  },
+  {
+    "_id": "6a02eb344739a6e7bcbeb41d",
+    "user": "6a02eb1c4739a6e7bcbeb41c",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d91644117",
+        "qty": 1,
+        "_id": "6a02eb344739a6e7bcbeb41e"
+      },
+      {
+        "product": "69fdf6cc919f494d91644118",
+        "qty": 1,
+        "_id": "6a02eb364739a6e7bcbeb421"
+      }
+    ],
+    "createdAt": "2026-05-12T08:56:20.518Z",
+    "updatedAt": "2026-05-12T08:56:29.447Z",
+    "__v": 1
+  },
+  {
+    "_id": "6a02ebaf4739a6e7bcbeb43f",
+    "user": "6a02eb724739a6e7bcbeb43e",
+    "items": [],
+    "createdAt": "2026-05-12T08:58:23.551Z",
+    "updatedAt": "2026-05-12T11:29:20.100Z",
+    "__v": 5
+  },
+  {
+    "_id": "6a05c8c72e6f34cb0b24ff60",
+    "user": "6a0312f064f27c0ef09b1365",
+    "items": [],
+    "createdAt": "2026-05-14T13:06:15.792Z",
+    "updatedAt": "2026-05-14T13:06:18.514Z",
+    "__v": 1
+  },
+  {
+    "_id": "6a05c8f92e6f34cb0b24ff6e",
+    "user": "6a05c8f12e6f34cb0b24ff6d",
+    "items": [
+      {
+        "product": "69fdf6cc919f494d9164411a",
+        "qty": 1,
+        "_id": "6a05c9022e6f34cb0b24ff84"
+      },
+      {
+        "product": "69fdf6cc919f494d9164411d",
+        "qty": 1,
+        "_id": "6a05c9032e6f34cb0b24ff8b"
+      },
+      {
+        "product": "69fdf6cc919f494d91644123",
+        "qty": 1,
+        "_id": "6a05c9042e6f34cb0b24ff9f"
+      }
+    ],
+    "createdAt": "2026-05-14T13:07:05.924Z",
+    "updatedAt": "2026-05-14T13:07:28.708Z",
+    "__v": 13
+  },
+  {
+    "_id": "6a05c9332e6f34cb0b250000",
+    "user": "6a05c9222e6f34cb0b24ffff",
+    "items": [],
+    "createdAt": "2026-05-14T13:08:03.869Z",
+    "updatedAt": "2026-05-14T13:08:24.873Z",
+    "__v": 6
+  }
+]
