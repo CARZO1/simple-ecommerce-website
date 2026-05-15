@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('../models/Order');
-const Cart = require('../models/Cart');
+const Order   = require('../models/Order');
+const Cart    = require('../models/Cart');
+const Product = require('../models/Product');
 const { protect } = require('../middleware/auth');
 
 // place an order from the current cart
@@ -12,6 +13,15 @@ router.post('/', protect, async (req, res) => {
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: 'Your cart is empty' });
+    }
+
+    // check stock is sufficient for all items (only if stock is being tracked)
+    for (const c of cart.items) {
+      if (c.product.stock != null && c.product.stock < c.qty) {
+        return res.status(400).json({
+          message: `Not enough stock for "${c.product.name}" (${c.product.stock} left)`
+        });
+      }
     }
 
     // calculate totals server-side (same logic as frontend)
@@ -41,6 +51,11 @@ router.post('/', protect, async (req, res) => {
     });
 
     await order.save();
+
+    // decrement stock for each ordered item
+    for (const c of cart.items) {
+      await Product.findByIdAndUpdate(c.product._id, { $inc: { stock: -c.qty } });
+    }
 
     // clear the cart after order is placed
     cart.items = [];

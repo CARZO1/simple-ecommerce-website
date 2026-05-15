@@ -82,9 +82,13 @@ async function renderProducts() {
         <div class="product-category">${p.category}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-type">${p.type}</div>
+        ${p.stock === 0 ? `<div class="stock-badge stock-none">Out of Stock</div>` : ''}
         <div class="product-footer">
           <span class="product-price">$${p.price.toFixed(2)}</span>
-          <button class="add-to-cart-btn" onclick="addToCart('${p._id}')">Add to Cart</button>
+          ${p.stock === 0
+            ? `<button class="add-to-cart-btn out-of-stock-btn" disabled>Out of Stock</button>`
+            : `<button class="add-to-cart-btn" onclick="addToCart('${p._id}')">Add to Cart</button>`
+          }
         </div>
       </div>
     </div>
@@ -555,9 +559,148 @@ async function renderAdmin() {
 async function renderAdminTab() {
   const content = document.getElementById('adminTabContent');
   content.innerHTML = '<p class="admin-loading">Loading...</p>';
-  if (activeAdminTab === 'orders') await renderAdminOrders();
-  else if (activeAdminTab === 'users')  await renderAdminUsers();
-  else if (activeAdminTab === 'carts')  await renderAdminCarts();
+  if (activeAdminTab === 'orders')   await renderAdminOrders();
+  else if (activeAdminTab === 'users')    await renderAdminUsers();
+  else if (activeAdminTab === 'carts')    await renderAdminCarts();
+  else if (activeAdminTab === 'products') await renderAdminProducts();
+}
+
+let adminEditingProductId = null;
+
+async function renderAdminProducts() {
+  const content = document.getElementById('adminTabContent');
+  try {
+    const res = await fetch(`${API_URL}/products`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const products = await res.json();
+
+    const editingProduct = adminEditingProductId
+      ? products.find(p => p._id === adminEditingProductId)
+      : null;
+
+    content.innerHTML = `
+      ${editingProduct ? `
+        <div class="admin-edit-form">
+          <h3 class="edit-form-title">Editing: ${editingProduct.name}</h3>
+          <div class="edit-form-grid">
+            <div class="edit-field">
+              <label>Name</label>
+              <input class="form-input" id="editName" value="${editingProduct.name}" />
+            </div>
+            <div class="edit-field">
+              <label>Category</label>
+              <input class="form-input" id="editCategory" value="${editingProduct.category}" />
+            </div>
+            <div class="edit-field">
+              <label>Type</label>
+              <input class="form-input" id="editType" value="${editingProduct.type}" />
+            </div>
+            <div class="edit-field">
+              <label>Price ($)</label>
+              <input class="form-input" id="editPrice" type="number" step="0.01" min="0" value="${editingProduct.price}" />
+            </div>
+            <div class="edit-field">
+              <label>Stock</label>
+              <input class="form-input" id="editStock" type="number" min="0" value="${editingProduct.stock ?? 0}" />
+            </div>
+            <div class="edit-field">
+              <label>Emoji</label>
+              <input class="form-input" id="editEmoji" value="${editingProduct.emoji || ''}" />
+            </div>
+            <div class="edit-field edit-field-wide">
+              <label>Image URL</label>
+              <input class="form-input" id="editImage" value="${editingProduct.image || ''}" />
+            </div>
+          </div>
+          <div class="edit-form-actions">
+            <button class="btn-primary" onclick="saveAdminProduct('${editingProduct._id}')">Save Changes</button>
+            <button class="btn-secondary" onclick="cancelAdminEdit()">Cancel</button>
+          </div>
+        </div>` : ''}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${products.map(p => `
+              <tr class="${adminEditingProductId === p._id ? 'editing-row' : ''}">
+                <td>${p.name}</td>
+                <td>${p.category}</td>
+                <td>$${p.price.toFixed(2)}</td>
+                <td>${p.stock != null
+                  ? (p.stock === 0
+                    ? `<span class="stock-badge stock-none">Out of stock</span>`
+                    : p.stock)
+                  : '—'
+                }</td>
+                <td>
+                  <button class="admin-edit-btn" onclick="startAdminEdit('${p._id}')">Edit</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    toast('Could not load products.', 'error');
+  }
+}
+
+function startAdminEdit(productId) {
+  adminEditingProductId = productId;
+  renderAdminProducts();
+}
+
+function cancelAdminEdit() {
+  adminEditingProductId = null;
+  renderAdminProducts();
+}
+
+async function saveAdminProduct(productId) {
+  const name     = document.getElementById('editName').value.trim();
+  const category = document.getElementById('editCategory').value.trim();
+  const type     = document.getElementById('editType').value.trim();
+  const price    = parseFloat(document.getElementById('editPrice').value);
+  const stock    = parseInt(document.getElementById('editStock').value);
+  const emoji    = document.getElementById('editEmoji').value.trim();
+  const image    = document.getElementById('editImage').value.trim();
+
+  if (!name || !category || !type || isNaN(price) || isNaN(stock)) {
+    toast('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/products/${productId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ name, category, type, price, stock, emoji, image })
+    });
+
+    if (!res.ok) {
+      toast('Could not save product.', 'error');
+      return;
+    }
+
+    // refresh the product cache so the shop reflects the changes
+    cachedProducts = null;
+
+    adminEditingProductId = null;
+    toast('Product updated.', 'success');
+    renderAdminProducts();
+  } catch (err) {
+    toast('Something went wrong.', 'error');
+  }
 }
 
 async function renderAdminOrders() {

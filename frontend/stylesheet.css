@@ -2,6 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: inherit;
 }
 
 :root {
@@ -756,6 +757,79 @@ main {
 
 .admin-loading { color: var(--muted); padding: 1rem 0; }
 .admin-empty   { color: var(--muted); padding: 2rem 0; text-align: center; }
+
+/* Stock badge */
+.stock-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.stock-none { background: #fee2e2; color: #991b1b; }
+
+/* Out of stock button */
+.out-of-stock-btn {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.out-of-stock-btn:hover { background: var(--border); }
+
+/* Admin product edit form */
+.admin-edit-btn {
+  padding: 0.25rem 0.7rem;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.admin-edit-btn:hover { background: var(--accent); color: #fff; }
+
+.editing-row td { background: #f0f4ff; }
+
+.admin-edit-form {
+  background: var(--white);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.edit-form-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.edit-field-wide { grid-column: 1 / -1; }
+
+.edit-field label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
 
 /* Orders */
 .order-card {
